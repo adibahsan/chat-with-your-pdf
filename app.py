@@ -190,9 +190,7 @@ def get_vector(chunks):
         # serialized_vectors = pickle.dumps(data)
         print("Saving vectors to DB")
         db.save_local("faiss_index")
-
-        vectors = FAISS.load_local("faiss_index", OpenAIEmbeddings(),
-                                   allow_dangerous_deserialization=True)
+        vectors = db
 
     return vectors
 
@@ -276,7 +274,7 @@ def main():
         st.session_state.pdf_processed = False
 
     # Replace the file uploader with a call to get_text_from_local
-    file_paths = ['files/membership.pdf']  # Replace with your file paths
+    file_paths = ['files/SR2013.pdf']  # Replace with your file paths
 
     if not st.session_state.pdf_processed:
         st.session_state.llm_chain = process_pdf(file_paths)
