@@ -45,6 +45,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from PyPDF2 import PdfReader
 
+
 from dotenv import load_dotenv
 import os
 
@@ -132,9 +133,28 @@ def get_chunks(data):
     return text_chunks
 
 
+# def get_vector(chunks):
+#     """
+#     Generate vectors from text chunks using FAISS vector store and OpenAI embeddings.
+#
+#     Parameters:
+#     -----------
+#     chunks : list
+#         List of text chunks that need to be vectorized.
+#
+#     Returns:
+#     --------
+#     FAISS
+#         FAISS vector store containing vectors of the provided text chunks.
+#     """
+#     return FAISS.from_texts(texts=chunks, embedding=OpenAIEmbeddings())
+
+
+
 def get_vector(chunks):
     """
     Generate vectors from text chunks using FAISS vector store and OpenAI embeddings.
+    If vectors already exist in the database, retrieve and use them. Otherwise, generate and store them.
 
     Parameters:
     -----------
@@ -146,7 +166,36 @@ def get_vector(chunks):
     FAISS
         FAISS vector store containing vectors of the provided text chunks.
     """
-    return FAISS.from_texts(texts=chunks, embedding=OpenAIEmbeddings())
+    # Connect to the MongoDB instance running on localhost
+    # client = MongoClient("mongodb://localhost:27217/")
+    # db = client.llm
+    #
+    # # Check if the vectors for the chunks already exist in the database
+    # result = db.vectors.find_one({"text": chunks})
+
+    # result = FAISS.load_local("faiss_index", OpenAIEmbeddings(), asynchronous=True, allow_dangerous_deserialization=True)
+    try:
+        result = FAISS.load_local("faiss_index", OpenAIEmbeddings(), allow_dangerous_deserialization=True)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        result = None
+
+    if result is not None:
+        print(f"Result Found in DB: {result}")
+        vectors = result
+    else:
+        # If the vectors don't exist, generate and store them
+        db = FAISS.from_texts(texts=chunks, embedding=OpenAIEmbeddings())
+        # data = vectors.serialize_to_bytes()
+        # serialized_vectors = pickle.dumps(data)
+        print("Saving vectors to DB")
+        db.save_local("faiss_index")
+
+        vectors = FAISS.load_local("faiss_index", OpenAIEmbeddings(),
+                                   allow_dangerous_deserialization=True)
+
+    return vectors
+
 
 
 def get_llm_chain(vectors):
@@ -227,7 +276,7 @@ def main():
         st.session_state.pdf_processed = False
 
     # Replace the file uploader with a call to get_text_from_local
-    file_paths = ['files/SR2013.pdf']  # Replace with your file paths
+    file_paths = ['files/membership.pdf']  # Replace with your file paths
 
     if not st.session_state.pdf_processed:
         st.session_state.llm_chain = process_pdf(file_paths)
