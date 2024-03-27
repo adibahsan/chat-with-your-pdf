@@ -77,19 +77,14 @@ The ChatPDF project is a Streamlit application that allows users to upload PDF a
 ### ✔️ Prerequisites
 
 Before you begin, ensure that you have the following prerequisites installed:
-> - `pip install streamlit`
-> - `pip install langchain `
-> - `pip install openai`
-> - `pip install faiss-cpu`
-> - `pip install python-docx`
-> - `pip install PyPDF2`
+> - `pip install -r requirements.txt`
 
 
 ### 📦 Installation
 
 1. Clone the ChatPDF repository:
 ```sh
-git clone https://github.com/rahul2002m/ChatPDF
+git clone https://github.com/adibahsan/chat-with-your-pdf
 ```
 
 2. Change to the project directory:
@@ -100,6 +95,9 @@ cd ChatPDF
 3. Install the dependencies:
 ```sh
 pip install -r requirements.txt
+```
+
+4. Set up the OpenAI API key:
 ```
 
 ### 🎮 Using ChatPDF
